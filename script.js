@@ -2,7 +2,7 @@ let dadosTabela = [];
 let tabela;
 
 async function carregarExcel() {
-  const response = await fetch('Inventário de bancos de dados_V4.xlsx');
+  const response = await fetch('Inventário de bancos de dados_V3.xlsx');
   const arrayBuffer = await response.arrayBuffer();
   const workbook = XLSX.read(arrayBuffer, { type: 'array' });
   const primeiraAba = workbook.SheetNames[0];
@@ -26,7 +26,13 @@ function popularOrgao(dados) {
 }
 
 function iniciarTabela(dados) {
-  const colunas = Object.keys(dados[0]).map(chave => ({ title: chave, data: chave }));
+    const todasChaves = new Set();
+    dados.forEach(obj => Object.keys(obj).forEach(chave => todasChaves.add(chave)));
+
+    const colunas = Array.from(todasChaves).map(chave => ({
+      title: chave,
+      data: chave
+    }));
 
 
   const dadosNormalizados = dados.map(row => {
@@ -58,7 +64,7 @@ function filtrar() {
   const filtrado = dadosTabela
     .filter(item =>
       (orgao === '' || (item['Órgão'] || '').toLowerCase().includes(orgao)) &&
-      (banco === '' || (item['Banco'] || '').toLowerCase().includes(banco)) &&
+      (banco === '' || (item['BANCO'] || '').toLowerCase().includes(banco)) &&
       (ip === '' || (item['IP'] || '').toLowerCase().includes(ip))
     )
     .map(row => {
@@ -88,7 +94,7 @@ document.getElementById('fileInput').addEventListener('change', async (e) => {
     const dados = XLSX.utils.sheet_to_json(workbook.Sheets[primeiraAba]);
 
     dadosTabela = dados;
-    limparTabela(); // limpa a tabela anterior
+    limparTabela();
     popularOrgao(dados);
     iniciarTabela(dados);
   };
